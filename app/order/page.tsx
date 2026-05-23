@@ -73,6 +73,33 @@ export default function OrderPage() {
 
   const orderTotal = total();
 
+  const razorpayReady = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID &&
+    process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID !== "rzp_test_REPLACE_ME";
+
+  async function handleTestOrder() {
+    if (!name.trim() || !email.trim() || !pickupTime) {
+      setError("Please fill in all fields.");
+      return;
+    }
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/test-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customerName: name, customerEmail: email, pickupTime, items, total: orderTotal }),
+      });
+      const { orderId: savedOrderId, error: apiError } = await res.json();
+      if (apiError) throw new Error(apiError);
+      clearCart();
+      router.push(`/order/${savedOrderId}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to place test order.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function handlePayment() {
     if (!name.trim() || !email.trim() || !pickupTime) {
       setError("Please fill in all fields.");
@@ -216,16 +243,35 @@ export default function OrderPage() {
               </p>
             )}
 
-            <button
-              onClick={handlePayment}
-              disabled={loading || items.length === 0}
-              className="mt-2 py-4 bg-burgundy text-cream text-sm tracking-widest uppercase font-sans hover:bg-burgundy-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.99]"
-            >
-              {loading ? "Processing…" : `Pay ₹${orderTotal}`}
-            </button>
+            {razorpayReady ? (
+              <button
+                onClick={handlePayment}
+                disabled={loading || items.length === 0}
+                className="mt-2 py-4 bg-burgundy text-cream text-sm tracking-widest uppercase font-sans hover:bg-burgundy-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.99]"
+              >
+                {loading ? "Processing…" : `Pay ₹${orderTotal}`}
+              </button>
+            ) : (
+              <div className="flex flex-col gap-3">
+                <div className="bg-amber-50 border border-amber-200 px-4 py-3">
+                  <p className="text-xs font-sans text-amber-700 leading-relaxed">
+                    <strong>Razorpay not configured yet.</strong> Use the test button below to place a real order and test the full flow.
+                  </p>
+                </div>
+                <button
+                  onClick={handleTestOrder}
+                  disabled={loading || items.length === 0}
+                  className="py-4 bg-charcoal text-cream text-sm tracking-widest uppercase font-sans hover:bg-charcoal/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? "Placing order…" : `Place Test Order · ₹${orderTotal}`}
+                </button>
+              </div>
+            )}
 
             <p className="text-xs text-charcoal/40 font-sans text-center leading-relaxed">
-              Payments powered by Razorpay. UPI, cards, net banking & wallets accepted.
+              {razorpayReady
+                ? "Payments powered by Razorpay. UPI, cards, net banking & wallets accepted."
+                : "Test mode — no payment taken. Order will appear in /admin."}
             </p>
           </div>
         </FadeIn>
