@@ -4,24 +4,9 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/lib/cart-store";
 import FadeIn from "@/components/FadeIn";
+import PickupCalendar from "@/components/PickupCalendar";
 
 // ─── Date helpers ────────────────────────────────────────────────────────────
-
-/** Next N days starting from today (midnight local) */
-function getAvailableDates(daysAhead = 14) {
-  return Array.from({ length: daysAhead }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() + i);
-    d.setHours(0, 0, 0, 0);
-    return d;
-  });
-}
-
-function formatDateLabel(date: Date, index: number) {
-  if (index === 0) return `Today · ${date.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}`;
-  if (index === 1) return `Tomorrow · ${date.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}`;
-  return date.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" });
-}
 
 /** ISO date-only string: "2026-05-23" */
 function toDateKey(date: Date) {
@@ -93,8 +78,9 @@ export default function OrderPage() {
   const [error, setError]         = useState("");
 
   // Date & time state
-  const dates                          = getAvailableDates(14);
-  const [selectedDateKey, setDateKey]  = useState(toDateKey(dates[0]));
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const [selectedDateKey, setDateKey]  = useState(toDateKey(today));
   const [slots, setSlots]              = useState<string[]>([]);
   const [pickupTime, setPickupTime]    = useState("");
 
@@ -260,22 +246,16 @@ export default function OrderPage() {
               />
             </div>
 
-            {/* Pickup date */}
+            {/* Pickup date — calendar */}
             <div className="flex flex-col gap-1.5">
               <label className="text-xs tracking-widest uppercase font-sans text-charcoal/50">
                 Pickup Date
               </label>
-              <select
-                value={selectedDateKey}
-                onChange={(e) => setDateKey(e.target.value)}
-                className="border border-cream-dark bg-white px-4 py-3 font-sans text-sm text-charcoal focus:outline-none focus:border-burgundy transition-colors"
-              >
-                {dates.map((d, i) => (
-                  <option key={toDateKey(d)} value={toDateKey(d)}>
-                    {formatDateLabel(d, i)}
-                  </option>
-                ))}
-              </select>
+              <PickupCalendar
+                selectedDateKey={selectedDateKey}
+                onChange={setDateKey}
+                daysAhead={14}
+              />
             </div>
 
             {/* Pickup time */}
