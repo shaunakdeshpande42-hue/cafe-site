@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
-// Dev-only route — creates a real order without payment, for testing the full flow
+// Creates a real order without payment — used for testing until Razorpay is configured.
+// This route is automatically hidden from the UI once Razorpay keys are set.
 export async function POST(req: NextRequest) {
-  if (process.env.NODE_ENV === "production" && !process.env.ALLOW_TEST_ORDERS) {
-    return NextResponse.json({ error: "Not available in production" }, { status: 403 });
-  }
-
   const { customerName, customerEmail, pickupTime, items, total } = await req.json();
 
   const { data: customer, error: ce } = await supabaseAdmin
@@ -36,7 +33,8 @@ export async function POST(req: NextRequest) {
     price: item.price * 100,
   }));
 
-  await supabaseAdmin.from("order_items").insert(orderItems);
+  const { error: ie } = await supabaseAdmin.from("order_items").insert(orderItems);
+  if (ie) return NextResponse.json({ error: ie.message }, { status: 500 });
 
   return NextResponse.json({ orderId: order.id });
 }
