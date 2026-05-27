@@ -1,44 +1,39 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import FadeIn from "@/components/FadeIn";
-import { menuItems } from "@/lib/menu-data";
+import ReviewsSection from "@/components/ReviewsSection";
+import InstagramSection from "@/components/InstagramSection";
+import SpecialsBanner from "@/components/SpecialsBanner";
 
-const featuredItems = menuItems.filter((item) => item.badge === "Bestseller" || item.badge === "Signature").slice(0, 3);
-
-const reviews = [
-  {
-    name: "Aditi Sharma",
-    rating: 5,
-    text: "The eclairs here are absolutely divine. Every bite is pure happiness — you can taste the craft that goes into each piece.",
-  },
-  {
-    name: "Rohan Mehta",
-    rating: 5,
-    text: "EM's hot chocolate on a cool evening is unmatched. The space is gorgeous and the staff genuinely makes you feel at home.",
-  },
-  {
-    name: "Priya Nair",
-    rating: 5,
-    text: "Ordered a custom cake for my anniversary — it was more beautiful and delicious than I ever imagined. Absolutely world-class.",
-  },
-];
-
-function StarRating({ count }: { count: number }) {
-  return (
-    <div className="flex gap-0.5">
-      {Array.from({ length: count }).map((_, i) => (
-        <svg key={i} viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-gold">
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-        </svg>
-      ))}
-    </div>
-  );
-}
+type DbMenuItem = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  badge: string | null;
+  image_url: string | null;
+};
 
 export default function Home() {
+  const [featuredItems, setFeaturedItems] = useState<DbMenuItem[]>([]);
+
+  useEffect(() => {
+    fetch("/api/menu")
+      .then((r) => r.json())
+      .then((items: DbMenuItem[]) => {
+        setFeaturedItems(
+          items
+            .filter((item) => item.badge === "Bestseller" || item.badge === "Signature")
+            .slice(0, 3)
+        );
+      })
+      .catch(() => {});
+  }, []);
   return (
     <div>
       {/* Hero */}
@@ -47,8 +42,10 @@ export default function Home() {
           src="/gallery/10.webp"
           alt="EM Patisserie interior"
           fill
-          className="object-cover"
+          sizes="100vw"
+          className="object-cover object-[center_40%]"
           priority
+          quality={90}
         />
         <div className="absolute inset-0 bg-charcoal/55" />
 
@@ -58,14 +55,23 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
         >
-          <Image
-            src="/logo.jpeg"
-            alt="EM Patisserie logo"
-            width={100}
-            height={100}
-            className="object-contain brightness-0 invert mb-2"
-            priority
-          />
+          <div className="flex flex-col items-center gap-4 mb-2">
+            <Image
+              src="/logo.svg"
+              alt="EM Patisserie logo"
+              width={180}
+              height={115}
+              className="object-contain brightness-0 invert opacity-95 drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]"
+              priority
+              unoptimized
+            />
+            {/* thin ornamental rule */}
+            <div className="flex items-center gap-3 w-40">
+              <span className="flex-1 h-px bg-cream/40" />
+              <span className="w-1 h-1 rounded-full bg-cream/40" />
+              <span className="flex-1 h-px bg-cream/40" />
+            </div>
+          </div>
           <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-cream leading-tight tracking-wide">
             EM Patisserie &<br />Artisanal Chocolates
           </h1>
@@ -80,7 +86,7 @@ export default function Home() {
               Explore Menu
             </Link>
             <Link
-              href="/order"
+              href="/menu"
               className="px-8 py-3.5 border border-cream/60 text-cream text-sm tracking-widest uppercase font-sans hover:bg-cream/10 transition-colors duration-200"
             >
               Order Online
@@ -103,6 +109,9 @@ export default function Home() {
             style={{ transformOrigin: "top" }}
           />
         </motion.div>
+
+        {/* Specials banner — slides up from hero bottom */}
+        <SpecialsBanner />
       </section>
 
       {/* About strip */}
@@ -133,9 +142,9 @@ export default function Home() {
               <FadeIn key={item.id} delay={i * 0.1}>
                 <div className="group flex flex-col gap-4">
                   <div className="aspect-square bg-cream-dark overflow-hidden">
-                    {item.image ? (
+                    {item.image_url ? (
                       <Image
-                        src={item.image}
+                        src={item.image_url}
                         alt={item.name}
                         width={400}
                         height={400}
@@ -205,29 +214,130 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Reviews */}
+      {/* Reviews — live from Google */}
+      <ReviewsSection />
+
+      {/* Instagram feed */}
+      <InstagramSection />
+
+      {/* Location & Directions */}
       <section className="py-20 px-6 bg-cream">
         <div className="max-w-7xl mx-auto">
-          <FadeIn className="text-center mb-12">
-            <p className="text-xs tracking-widest uppercase text-gold font-sans mb-3">Testimonials</p>
-            <h2 className="font-serif text-3xl sm:text-4xl text-charcoal">What our guests say</h2>
+          <FadeIn className="mb-12">
+            <p className="text-xs tracking-widest uppercase text-gold font-sans mb-3">Visit Us</p>
+            <h2 className="font-serif text-3xl sm:text-4xl text-charcoal">Find EM Patisserie</h2>
           </FadeIn>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {reviews.map((review, i) => (
-              <FadeIn key={review.name} delay={i * 0.1}>
-                <div className="bg-cream-dark p-8 flex flex-col gap-4">
-                  <StarRating count={review.rating} />
-                  <p className="font-serif text-base text-charcoal/80 leading-relaxed italic">
-                    &ldquo;{review.text}&rdquo;
-                  </p>
-                  <p className="text-xs tracking-widest uppercase text-charcoal/50 font-sans mt-auto">
-                    — {review.name}
-                  </p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 border border-cream-dark">
+
+            {/* Left — address + hours */}
+            <FadeIn className="flex flex-col justify-between p-8 sm:p-10 gap-8 border-b lg:border-b-0 lg:border-r border-cream-dark">
+
+              {/* Address */}
+              <div className="flex flex-col gap-6">
+                <div className="flex gap-4">
+                  <div className="shrink-0 mt-0.5">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5 text-burgundy">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-xs tracking-widest uppercase font-sans text-charcoal/40 mb-2">Address</p>
+                    <p className="font-serif text-lg text-charcoal leading-snug">EM Patisserie &amp; Artisanal Chocolates</p>
+                    <p className="font-sans text-sm text-charcoal/60 mt-1 leading-relaxed">
+                      Kalyani Nagar<br />
+                      Pune – 411006, Maharashtra
+                    </p>
+                  </div>
                 </div>
-              </FadeIn>
-            ))}
+
+                {/* Hours */}
+                <div className="flex gap-4">
+                  <div className="shrink-0 mt-0.5">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5 text-burgundy">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-xs tracking-widest uppercase font-sans text-charcoal/40 mb-2">Opening Hours</p>
+                    <div className="flex flex-col gap-1.5">
+                      {[
+                        { days: "Monday – Sunday", hours: "10:00 AM – 10:00 PM" },
+                      ].map(({ days, hours }) => (
+                        <div key={days} className="flex justify-between gap-6">
+                          <span className="font-sans text-sm text-charcoal/60">{days}</span>
+                          <span className="font-sans text-sm text-charcoal font-medium whitespace-nowrap">{hours}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Phone */}
+                <div className="flex gap-4">
+                  <div className="shrink-0 mt-0.5">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5 text-burgundy">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-xs tracking-widest uppercase font-sans text-charcoal/40 mb-2">Phone</p>
+                    <a href="tel:+918857874437" className="font-sans text-sm text-charcoal hover:text-burgundy transition-colors">
+                      +91 88578 74437
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* CTA button */}
+              {/* ↓ Replace YOUR_FULL_ADDRESS with the actual address for the directions link */}
+              <a
+                href="https://www.google.com/maps/dir/?api=1&destination=18.544375%2C73.9004449"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 self-start px-7 py-3.5 bg-charcoal text-cream text-xs tracking-widest uppercase font-sans hover:bg-burgundy transition-colors duration-200 group"
+              >
+                Get Directions
+                <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 group-hover:translate-x-0.5 transition-transform">
+                  <path fillRule="evenodd" d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z" clipRule="evenodd" />
+                </svg>
+              </a>
+            </FadeIn>
+
+            {/* Right — Google Map embed */}
+            <FadeIn className="min-h-[340px] lg:min-h-0 relative bg-cream-dark">
+              {/*
+                ── HOW TO UPDATE THE MAP ──────────────────────────────────────
+                1. Go to maps.google.com and search for your café's address
+                2. Click Share → Embed a map → Copy the src URL from the <iframe>
+                3. Replace the src value below with that URL
+                ────────────────────────────────────────────────────────────────
+              */}
+              <iframe
+                src="https://maps.google.com/maps?q=18.544375,73.9004449&z=17&ie=UTF8&iwloc=B&output=embed"
+                width="100%"
+                height="100%"
+                style={{ border: 0, minHeight: "340px", display: "block" }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="EM Patisserie location"
+                className="w-full h-full absolute inset-0"
+              />
+            </FadeIn>
+
           </div>
+
+          {/* Parking note */}
+          <FadeIn className="mt-4 flex items-start gap-2">
+            <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-charcoal/30 mt-0.5 shrink-0">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clipRule="evenodd" />
+            </svg>
+            <p className="text-xs font-sans text-charcoal/35 leading-relaxed">
+              Street parking available on Lane Number 3. For bulk orders and event pickups, please inform us in advance.
+            </p>
+          </FadeIn>
         </div>
       </section>
 
@@ -245,14 +355,22 @@ export default function Home() {
             Celebrating something special?
           </h2>
           <p className="text-cream/70 font-sans text-base leading-relaxed">
-            Order a custom cake or a curated chocolate gift box for any occasion.
+            Every custom cake is made entirely by hand — share your vision and we&rsquo;ll bring it to life.
           </p>
-          <Link
-            href="/order"
-            className="px-8 py-3.5 bg-burgundy text-cream text-sm tracking-widest uppercase font-sans hover:bg-burgundy-dark transition-colors duration-200"
-          >
-            Order Now
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Link
+              href="/custom-order"
+              className="px-8 py-3.5 bg-burgundy text-cream text-sm tracking-widest uppercase font-sans hover:bg-burgundy-dark transition-colors duration-200"
+            >
+              Order a Custom Cake
+            </Link>
+            <Link
+              href="/menu"
+              className="px-8 py-3.5 border border-cream/50 text-cream text-sm tracking-widest uppercase font-sans hover:bg-cream/10 transition-colors duration-200"
+            >
+              Browse Menu
+            </Link>
+          </div>
         </FadeIn>
       </section>
     </div>

@@ -11,6 +11,7 @@ export interface Customer {
   id: string;
   name: string;
   email: string;
+  phone?: string;
   created_at: string;
 }
 
@@ -22,6 +23,7 @@ export interface Order {
   pickup_time: string;
   razorpay_order_id: string | null;
   razorpay_payment_id: string | null;
+  special_instructions: string | null;
   created_at: string;
   customers?: Customer;
   order_items?: OrderItem[];

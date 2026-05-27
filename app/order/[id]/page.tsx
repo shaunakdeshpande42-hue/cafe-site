@@ -35,10 +35,11 @@ export default function OrderTrackingPage() {
 
   useEffect(() => {
     fetchOrder();
-    // Poll every 10 seconds for status updates
+    // Stop polling once the order is completed — status won't change again
+    if (order?.status === "completed") return;
     const interval = setInterval(fetchOrder, 10000);
     return () => clearInterval(interval);
-  }, [fetchOrder]);
+  }, [fetchOrder, order?.status]);
 
   if (loading) {
     return (
@@ -53,7 +54,37 @@ export default function OrderTrackingPage() {
       <div className="pt-20 min-h-screen bg-cream flex items-center justify-center px-6 text-center">
         <div>
           <p className="font-serif text-2xl text-charcoal mb-3">Order not found</p>
-          <p className="text-charcoal/50 font-sans text-sm">{error}</p>
+          <p className="text-charcoal/50 font-sans text-sm">
+            This order may have been archived or the link is invalid.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Completed screen — no live tracking needed, no further polling
+  if (order.status === "completed") {
+    return (
+      <div className="pt-20 min-h-screen bg-cream flex items-center justify-center px-6">
+        <div className="max-w-sm w-full text-center flex flex-col items-center gap-6">
+          <div className="w-16 h-16 rounded-full bg-burgundy/10 flex items-center justify-center">
+            <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 text-burgundy">
+              <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <p className="text-[10px] tracking-widest uppercase font-sans text-charcoal/40 mb-2">Order #{order.id.slice(0, 8).toUpperCase()}</p>
+            <h1 className="font-serif text-3xl text-charcoal mb-3">Thank you!</h1>
+            <p className="text-charcoal/50 font-sans text-sm leading-relaxed">
+              Your order has been completed. We hope you enjoy it — see you again soon.
+            </p>
+          </div>
+          <a
+            href="/"
+            className="px-8 py-3 bg-burgundy text-cream text-xs tracking-widest uppercase font-sans hover:bg-burgundy-dark transition-colors"
+          >
+            Back to EM
+          </a>
         </div>
       </div>
     );
@@ -134,7 +165,7 @@ export default function OrderTrackingPage() {
         </div>
 
         <p className="text-xs text-charcoal/30 font-sans text-center">
-          This page refreshes automatically every 10 seconds.
+          Status updates automatically every 10 seconds.
         </p>
       </div>
     </div>

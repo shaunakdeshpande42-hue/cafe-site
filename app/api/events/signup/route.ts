@@ -3,13 +3,18 @@ import { Resend } from "resend";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(req: NextRequest) {
   try {
-    const { eventId, eventTitle, eventDate, name, email } = await req.json();
+    const { eventId, eventTitle, eventDate, name, email, phone } = await req.json();
 
     if (!eventId || !name?.trim() || !email?.trim()) {
       return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
+    }
+
+    if (!EMAIL_RE.test(String(email).trim())) {
+      return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
     }
 
     // Check for duplicate signup
@@ -18,7 +23,7 @@ export async function POST(req: NextRequest) {
       .select("id")
       .eq("event_id", eventId)
       .eq("email", email.toLowerCase().trim())
-      .single();
+      .maybeSingle();
 
     if (existing) {
       return NextResponse.json({ error: "You've already signed up for this event." }, { status: 409 });
@@ -29,6 +34,7 @@ export async function POST(req: NextRequest) {
       event_id: eventId,
       name: name.trim(),
       email: email.toLowerCase().trim(),
+      phone: phone?.toString().trim() || null,
     });
 
     if (dbError) throw dbError;

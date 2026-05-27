@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { sendReadyForPickup } from "@/lib/twilio";
+import { sendReadyForPickupEmail } from "@/lib/email";
 
 // GET — admin: fetch all orders with items + customer
 export async function GET(req: NextRequest) {
@@ -31,5 +33,47 @@ export async function PATCH(req: NextRequest) {
     .eq("id", orderId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Send "ready for pickup" notifications when order is marked ready
+  if (status === "ready") {
+    try {
+      const { data: order } = await supabaseAdmin
+        .from("orders")
+        .select("id, customers(name, email, phone)")
+        .eq("id", orderId)
+        .single();
+
+      const raw = order?.customers;
+      const customer = (Array.isArray(raw) ? raw[0] : raw) as {
+        name: string;
+        email: string;
+        phone: string | null;
+      } | null;
+
+      if (customer) {
+        await Promise.allSettled([
+          // SMS
+          customer.phone
+            ? sendReadyForPickup({
+                phone: customer.phone,
+                customerName: customer.name,
+                orderId,
+              })
+            : Promise.resolve(),
+
+          // Email
+          sendReadyForPickupEmail({
+            email: customer.email,
+            customerName: customer.name,
+            orderId,
+          }),
+        ]);
+      }
+    } catch (err) {
+      // Never let notification failure affect the status update
+      console.error("[Notifications] Failed for ready notification:", err);
+    }
+  }
+
   return NextResponse.json({ success: true });
 }

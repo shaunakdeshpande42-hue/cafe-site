@@ -11,24 +11,6 @@ const socialLinks = [
       </svg>
     ),
   },
-  {
-    label: "Facebook",
-    href: "https://www.facebook.com/empatisserie",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-      </svg>
-    ),
-  },
-  {
-    label: "TikTok",
-    href: "https://www.tiktok.com/@empatisserie",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-        <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" />
-      </svg>
-    ),
-  },
 ];
 
 export default function Footer() {
@@ -38,11 +20,12 @@ export default function Footer() {
         {/* Brand */}
         <div className="flex flex-col gap-4">
           <Image
-            src="/logo.jpeg"
+            src="/logo.svg"
             alt="EM Patisserie"
-            width={72}
-            height={72}
+            width={88}
+            height={56}
             className="object-contain brightness-0 invert opacity-90"
+            unoptimized
           />
           <p className="text-sm leading-relaxed text-cream/60 max-w-xs">
             Handcrafted pastries, artisanal chocolates, and custom cakes —
@@ -61,6 +44,7 @@ export default function Footer() {
             { href: "/gallery", label: "Gallery" },
             { href: "/events", label: "Events" },
             { href: "/order", label: "Order Online" },
+            { href: "/custom-order", label: "Custom Cake" },
           ].map(({ href, label }) => (
             <Link
               key={href}
@@ -73,17 +57,33 @@ export default function Footer() {
         </div>
 
         {/* Contact + Socials */}
-        <div className="flex flex-col gap-3">
-          <h4 className="text-xs tracking-widest uppercase text-cream/40 mb-2">
+        <div className="flex flex-col gap-4">
+          <h4 className="text-xs tracking-widest uppercase text-cream/40 mb-1">
             Find Us
           </h4>
           <p className="text-sm leading-relaxed text-cream/60">
-            Pune, Maharashtra
-            <br />
-            India
+            Kalyani Nagar<br />
+            Pune – 411006, Maharashtra
           </p>
-          <p className="text-sm text-cream/60">Open daily · 9 AM – 9 PM</p>
-          <div className="flex gap-4 mt-3">
+          <div className="flex flex-col gap-1 text-sm text-cream/50">
+            <span>Open daily · 10:00 AM – 10:00 PM</span>
+          </div>
+          <a href="tel:+918857874437" className="text-sm text-cream/50 hover:text-cream transition-colors">
+            +91 88578 74437
+          </a>
+          {/* ↓ Replace destination with your actual address */}
+          <a
+            href="https://www.google.com/maps/dir/?api=1&destination=18.544375%2C73.9004449"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-xs tracking-widest uppercase font-sans text-blush hover:text-cream transition-colors mt-1"
+          >
+            Get Directions
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-3.5 h-3.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 13L13 3M13 3H7M13 3v6" />
+            </svg>
+          </a>
+          <div className="flex gap-4 mt-2">
             {socialLinks.map(({ label, href, icon }) => (
               <a
                 key={label}
