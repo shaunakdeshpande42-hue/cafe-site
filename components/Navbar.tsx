@@ -15,6 +15,20 @@ const navLinks = [
   { href: "/custom-order", label: "Custom Cake" },
 ];
 
+function useIsOpen() {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    function check() {
+      const h = new Date().getHours();
+      setOpen(h >= 10 && h < 22); // 10 AM – 10 PM
+    }
+    check();
+    const id = setInterval(check, 60_000);
+    return () => clearInterval(id);
+  }, []);
+  return open;
+}
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -23,6 +37,7 @@ export default function Navbar() {
   const isHome = pathname === "/";
   const { itemCount, openCart } = useCartStore();
   const count = itemCount();
+  const isOpen = useIsOpen();
 
   // On non-home pages the navbar is always opaque so links stay readable.
   // On the homepage it starts transparent (over the dark hero overlay) and
@@ -74,6 +89,29 @@ export default function Navbar() {
                 {label}
               </Link>
             ))}
+
+            {/* Open / Closed pill */}
+            {!isAdmin && (
+              <span
+                className={`hidden lg:inline-flex items-center gap-1.5 px-3 py-1 text-[10px] tracking-widest uppercase font-sans rounded-full transition-colors duration-300 ${
+                  isOpen
+                    ? isOpaque
+                      ? "bg-emerald-50 text-emerald-700"
+                      : "bg-cream/10 text-cream/80"
+                    : isOpaque
+                    ? "bg-charcoal/8 text-charcoal/40"
+                    : "bg-cream/10 text-cream/50"
+                }`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    isOpen ? "bg-emerald-500 animate-pulse" : "bg-charcoal/30"
+                  }`}
+                />
+                {isOpen ? "Open until 10 PM" : "Opens 10 AM"}
+              </span>
+            )}
+
             {!isAdmin && (
               <Link
                 href="/menu"

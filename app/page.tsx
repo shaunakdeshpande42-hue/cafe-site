@@ -5,9 +5,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import FadeIn from "@/components/FadeIn";
+import Ornament from "@/components/Ornament";
+import ItemImagePlaceholder from "@/components/ItemImagePlaceholder";
 import ReviewsSection from "@/components/ReviewsSection";
 import InstagramSection from "@/components/InstagramSection";
 import SpecialsBanner from "@/components/SpecialsBanner";
+import { useCartStore } from "@/lib/cart-store";
 
 type DbMenuItem = {
   id: string;
@@ -21,6 +24,7 @@ type DbMenuItem = {
 
 export default function Home() {
   const [featuredItems, setFeaturedItems] = useState<DbMenuItem[]>([]);
+  const { addItem, items: cartItems } = useCartStore();
 
   useEffect(() => {
     fetch("/api/menu")
@@ -50,44 +54,37 @@ export default function Home() {
         <div className="absolute inset-0 bg-charcoal/55" />
 
         <motion.div
-          className="relative z-10 text-center px-6 flex flex-col items-center gap-6"
+          className="relative z-10 text-center px-6 flex flex-col items-center gap-5"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="flex flex-col items-center gap-4 mb-2">
-            <Image
-              src="/logo.svg"
-              alt="EM Patisserie logo"
-              width={180}
-              height={115}
-              className="object-contain brightness-0 invert opacity-95 drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]"
-              priority
-              unoptimized
-            />
-            {/* thin ornamental rule */}
-            <div className="flex items-center gap-3 w-40">
-              <span className="flex-1 h-px bg-cream/40" />
-              <span className="w-1 h-1 rounded-full bg-cream/40" />
-              <span className="flex-1 h-px bg-cream/40" />
-            </div>
-          </div>
-          <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-cream leading-tight tracking-wide">
-            EM Patisserie &<br />Artisanal Chocolates
-          </h1>
-          <p className="text-cream/80 text-lg sm:text-xl font-sans font-light tracking-wider max-w-md">
-            Handcrafted with love. Enjoyed with care.
+          <Image
+            src="/logo.svg"
+            alt="EM Patisserie logo"
+            width={200}
+            height={128}
+            className="object-contain brightness-0 invert opacity-95 drop-shadow-[0_2px_16px_rgba(0,0,0,0.6)]"
+            priority
+            unoptimized
+          />
+
+          <Ornament light className="w-36 my-1" />
+
+          <p className="text-cream/75 text-base sm:text-lg font-sans font-light tracking-[0.2em] uppercase max-w-xs">
+            Handcrafted with love
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 mt-4">
+
+          <div className="flex flex-col sm:flex-row gap-4 mt-5">
             <Link
               href="/menu"
-              className="px-8 py-3.5 bg-burgundy text-cream text-sm tracking-widest uppercase font-sans hover:bg-burgundy-dark transition-colors duration-200"
+              className="px-9 py-3.5 bg-burgundy text-cream text-xs tracking-widest uppercase font-sans hover:bg-burgundy-dark transition-colors duration-200 shadow-lg shadow-burgundy/30"
             >
               Explore Menu
             </Link>
             <Link
-              href="/menu"
-              className="px-8 py-3.5 border border-cream/60 text-cream text-sm tracking-widest uppercase font-sans hover:bg-cream/10 transition-colors duration-200"
+              href="/order"
+              className="px-9 py-3.5 border border-cream/60 text-cream text-xs tracking-widest uppercase font-sans hover:bg-cream/10 backdrop-blur-sm transition-colors duration-200"
             >
               Order Online
             </Link>
@@ -115,12 +112,13 @@ export default function Home() {
       </section>
 
       {/* About strip */}
-      <section className="bg-burgundy py-16 px-6">
+      <section className="bg-burgundy py-20 px-6">
         <FadeIn className="max-w-3xl mx-auto text-center flex flex-col gap-4">
           <p className="text-xs tracking-widest uppercase text-blush font-sans">Our Story</p>
           <h2 className="font-serif text-3xl sm:text-4xl text-cream leading-snug">
             Where every creation is a labour of love
           </h2>
+          <Ornament light className="mx-auto my-1" />
           <p className="text-cream/70 font-sans text-base leading-relaxed max-w-2xl mx-auto">
             EM Patisserie was born from a passion for the finest European baking traditions,
             reimagined for the Indian palate. Each pastry, chocolate, and cake is made by hand
@@ -130,42 +128,66 @@ export default function Home() {
       </section>
 
       {/* Featured items */}
-      <section className="py-20 px-6 bg-cream">
+      <section className="py-24 px-6 bg-cream">
         <div className="max-w-7xl mx-auto">
-          <FadeIn className="text-center mb-12">
+          <FadeIn className="text-center mb-4">
             <p className="text-xs tracking-widest uppercase text-gold font-sans mb-3">From Our Kitchen</p>
             <h2 className="font-serif text-3xl sm:text-4xl text-charcoal">A few favourites</h2>
           </FadeIn>
+          <FadeIn className="mb-12">
+            <Ornament className="mx-auto" />
+          </FadeIn>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-            {featuredItems.map((item, i) => (
-              <FadeIn key={item.id} delay={i * 0.1}>
-                <div className="group flex flex-col gap-4">
-                  <div className="aspect-square bg-cream-dark overflow-hidden">
-                    {item.image_url ? (
-                      <Image
-                        src={item.image_url}
-                        alt={item.name}
-                        width={400}
-                        height={400}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <span className="font-serif text-4xl text-burgundy/20">EM</span>
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-serif text-lg text-charcoal">{item.name}</h3>
-                      <span className="text-sm font-sans text-burgundy shrink-0">₹{item.price}</span>
+            {featuredItems.map((item, i) => {
+              const inCart = cartItems.find((ci) => ci.id === item.id)?.quantity ?? 0;
+              return (
+                <FadeIn key={item.id} delay={i * 0.1}>
+                  <div className="group flex flex-col bg-white border border-cream-dark hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(106,22,43,0.10)] transition-all duration-300">
+                    {/* Image */}
+                    <div className="aspect-[4/3] overflow-hidden relative bg-cream-dark">
+                      {item.image_url ? (
+                        <Image
+                          src={item.image_url}
+                          alt={item.name}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full relative">
+                          <ItemImagePlaceholder category={item.category} />
+                        </div>
+                      )}
+                      {/* Badge */}
+                      {item.badge && (
+                        <span className="absolute top-3 left-3 bg-burgundy text-cream text-[10px] tracking-widest uppercase font-sans px-2.5 py-1 shadow-sm">
+                          {item.badge}
+                        </span>
+                      )}
                     </div>
-                    <p className="text-sm text-charcoal/60 font-sans mt-1 leading-relaxed">{item.description}</p>
+
+                    {/* Details */}
+                    <div className="px-5 py-5 flex flex-col gap-3 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="font-serif text-lg text-charcoal leading-snug">{item.name}</h3>
+                        <span className="text-sm font-sans font-medium text-burgundy shrink-0 mt-0.5">₹{item.price}</span>
+                      </div>
+                      <p className="text-sm text-charcoal/55 font-sans leading-relaxed flex-1">
+                        {item.description}
+                      </p>
+
+                      {/* Add to cart */}
+                      <button
+                        onClick={() => addItem({ id: item.id, name: item.name, price: item.price })}
+                        className="mt-1 w-full py-2.5 bg-cream border border-cream-dark text-charcoal text-xs tracking-widest uppercase font-sans text-center hover:bg-burgundy hover:text-cream hover:border-burgundy transition-colors duration-200 group-hover:border-burgundy/30"
+                      >
+                        {inCart > 0 ? `In cart (${inCart}) · Add more` : "Add to Cart"}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </FadeIn>
-            ))}
+                </FadeIn>
+              );
+            })}
           </div>
 
           <FadeIn className="text-center mt-12">

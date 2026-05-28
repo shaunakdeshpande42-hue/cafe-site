@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import FadeIn from "@/components/FadeIn";
+import MenuPlaceholder from "@/components/MenuPlaceholder";
+import ItemImagePlaceholder from "@/components/ItemImagePlaceholder";
 import { categories } from "@/lib/menu-data";
 import { useCartStore } from "@/lib/cart-store";
 import { useInventoryStore } from "@/lib/inventory-store";
@@ -157,8 +159,8 @@ export default function MenuPage() {
                           }`}
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-blush-light">
-                          <span className="font-serif text-5xl text-burgundy/15">EM</span>
+                        <div className="w-full h-full relative">
+                          <ItemImagePlaceholder category={item.category} />
                         </div>
                       )}
 

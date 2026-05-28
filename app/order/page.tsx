@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/lib/cart-store";
 import FadeIn from "@/components/FadeIn";
@@ -294,7 +295,21 @@ export default function OrderPage() {
           <div>
             <h2 className="font-serif text-2xl text-charcoal mb-6">Your Order</h2>
             {items.length === 0 ? (
-              <p className="text-charcoal/50 font-sans text-sm">Your cart is empty.</p>
+              <div className="flex flex-col items-center gap-5 py-10 text-center border border-dashed border-cream-dark bg-cream/50">
+                <span className="text-5xl leading-none">🛒</span>
+                <div>
+                  <p className="font-serif text-xl text-charcoal/60">Your cart is empty</p>
+                  <p className="text-sm font-sans text-charcoal/35 mt-1">
+                    Add something delicious to get started.
+                  </p>
+                </div>
+                <Link
+                  href="/menu"
+                  className="px-7 py-2.5 bg-burgundy text-cream text-xs tracking-widest uppercase font-sans hover:bg-burgundy-dark transition-colors duration-200"
+                >
+                  Browse Menu
+                </Link>
+              </div>
             ) : (
               <ul className="flex flex-col divide-y divide-cream-dark">
                 {items.map((item) => (
