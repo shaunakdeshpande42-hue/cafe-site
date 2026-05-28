@@ -1,7 +1,20 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import FadeIn from "@/components/FadeIn";
 import Ornament from "@/components/Ornament";
+
+export const metadata: Metadata = {
+  title: "Events & Workshops",
+  description:
+    "Join us for workshops, chocolate tastings, and special evenings at EM Patisserie in Kalyani Nagar, Pune. Check upcoming events and sign up.",
+  openGraph: {
+    title: "Events & Workshops | EM Patisserie",
+    description:
+      "Workshops, tastings, and special evenings — join us for something memorable at EM Patisserie, Pune.",
+  },
+  alternates: { canonical: "/events" },
+};
 
 interface Event {
   id: string;

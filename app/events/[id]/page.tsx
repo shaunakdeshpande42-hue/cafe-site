@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import FadeIn from "@/components/FadeIn";
@@ -24,6 +25,31 @@ async function getEvent(id: string): Promise<Event | null> {
 }
 
 export const revalidate = 60;
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ id: string }> }
+): Promise<Metadata> {
+  const { id } = await params;
+  const event = await getEvent(id);
+  if (!event) return { title: "Event Not Found" };
+
+  const dateStr = new Date(event.event_date).toLocaleDateString("en-IN", {
+    day: "numeric", month: "long", year: "numeric",
+  });
+
+  return {
+    title: event.title,
+    description: event.description
+      ? `${event.description.slice(0, 140)}…`
+      : `Join us for ${event.title} on ${dateStr} at EM Patisserie, Pune.`,
+    openGraph: {
+      title: event.title,
+      description: event.description ?? `Join us for ${event.title} at EM Patisserie, Pune.`,
+      images: event.image_url ? [{ url: event.image_url }] : [],
+    },
+    alternates: { canonical: `/events/${id}` },
+  };
+}
 
 export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

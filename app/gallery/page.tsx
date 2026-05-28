@@ -1,6 +1,18 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import FadeIn from "@/components/FadeIn";
+
+export const metadata: Metadata = {
+  title: "Gallery — Inside EM Patisserie",
+  description:
+    "A visual tour of EM Patisserie — our space, pastries, cakes, and chocolates. Located in Kalyani Nagar, Pune.",
+  openGraph: {
+    title: "Gallery | EM Patisserie",
+    description: "Step inside EM Patisserie — photos of our café, pastries, cakes, and chocolates in Pune.",
+  },
+  alternates: { canonical: "/gallery" },
+};
 
 export default function GalleryPage() {
   return (
