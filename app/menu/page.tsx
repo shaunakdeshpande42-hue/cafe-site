@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import FadeIn from "@/components/FadeIn";
-import MenuPlaceholder from "@/components/MenuPlaceholder";
 import ItemImagePlaceholder from "@/components/ItemImagePlaceholder";
 import { categories } from "@/lib/menu-data";
 import { useCartStore } from "@/lib/cart-store";
